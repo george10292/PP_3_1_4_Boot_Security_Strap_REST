@@ -40,8 +40,6 @@ public class UsersController {
         return "user-info";
     }
 
-
-
     @GetMapping("/admin")
     public String findAll(Model model){
         List<User> users = userService.usersAll();
@@ -79,5 +77,15 @@ public class UsersController {
         user.setRoles(userService.getRoles(roles));
         userService.userAdd(user);
         return "redirect:/admin";
+    }
+    @GetMapping("/user-registration")
+    public String registrationPage(@ModelAttribute("user") User user) {
+        return "user-registration";
+    }
+    @PostMapping("/user-registration")
+    public String performRegistration (@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
+        user.setRoles(userService.getRoles(roles));
+        userService.userAdd(user);
+        return "redirect:/";
     }
 }
