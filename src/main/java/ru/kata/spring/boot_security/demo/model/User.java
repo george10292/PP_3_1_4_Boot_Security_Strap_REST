@@ -24,6 +24,12 @@ public class User implements UserDetails {
     @Column(name = "surname")
     private String surname;
 
+    @Column(name= "age")
+    private Integer age;
+
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "password")
     private String password;
 

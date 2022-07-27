@@ -26,10 +26,7 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", role='" + name + '\'' +
-                '}';
+        return name.equals("ROLE_USER") ? "USER" : "ADMIN";
     }
 
     @Override

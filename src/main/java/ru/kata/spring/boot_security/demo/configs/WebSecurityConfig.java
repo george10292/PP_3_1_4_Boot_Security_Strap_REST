@@ -13,12 +13,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final SuccessUserHandler successUserHandler;
     private UserDetailsService userDetailsService;
+
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
 
     @Autowired
     public WebSecurityConfig(UserDetailsService userDetailsService, SuccessUserHandler successUserHandler) {
@@ -31,12 +36,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/login","/user-registration").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/", "/login").permitAll()
+                .antMatchers("admin/**").hasRole("ADMIN")
                 .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().successHandler(successUserHandler)
+                .formLogin()
+                .loginPage("/login")
+                .usernameParameter("email")
+                .successHandler(successUserHandler)
                 .permitAll()
                 .and()
                 .logout().logoutSuccessUrl("/")

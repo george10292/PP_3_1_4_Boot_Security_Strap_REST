@@ -1,35 +1,38 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
 import java.util.List;
 
 
+
 @Controller
 public class UsersController {
     private final UserService userService;
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsersController(UserService userService) {
+    public UsersController(UserRepository userRepo, UserService userService, PasswordEncoder passwordEncoder) {
+        this.userRepo = userRepo;
         this.userService = userService;
-    }
-
-
-
-    @GetMapping("/")
-    public String index(){
-        return "index";
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/user")
     public String userInfo(Model model, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+        User user = userService.findByUserEmail(principal.getName());
         model.addAttribute("user", user);
         return "user-info";
     }
@@ -40,52 +43,63 @@ public class UsersController {
         return "user-info";
     }
 
-    @GetMapping("/admin")
-    public String findAll(Model model){
-        List<User> users = userService.usersAll();
-        model.addAttribute("users", users);
-        return "user-list";
+    @GetMapping("/admin-info")
+    public String adminInfo(Model model, Principal principal){
+        User user = userService.findByUserEmail(principal.getName());
+        model.addAttribute("user", user);
+        return "admin-info";
     }
 
-    @GetMapping("/admin/user-create")
-    public String createUserForm(User user){
-        return "user-create";
+    @GetMapping("/admin")
+    public String findAll(Model model, Principal principal){
+        List<User> users = userService.usersAll();
+        User user = userService.findByUserEmail(principal.getName());
+        model.addAttribute("users", users);
+        model.addAttribute("user", user);
+        return "admin-panel";
     }
 
     @PostMapping("/admin/user-create")
     public String createUser(User user, @RequestParam(value = "role") String[] roles){
+        String password = passwordEncoder.encode(user.getPassword());
+        user.setPassword(password);
         user.setRoles(userService.getRoles(roles));
         userService.userAdd(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("/admin/user-delete/{id}")
+    @GetMapping("/admin/user-deleteconfirm/{id}")
     public String deleteUser(@PathVariable("id") Long id){
         userService.userDelete(id);
         return "redirect:/admin";
     }
 
+    @GetMapping("/admin/user-delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id, Model model, Authentication authentication){
+        User user1 = userService.userByid(id);
+        User user2 = userService.userByid(userService.findByUserEmail(authentication.getName()).getId());
+        model.addAttribute("user1", user1);
+        model.addAttribute("user2", user2);
+        model.addAttribute("users", userService.usersAll());
+        return "user-delete";
+    }
+
     @GetMapping("/admin/user-update/{id}")
-    public String updateUserForm(@PathVariable("id") Long id, Model model){
-        User user = userService.userByid(id);
-        model.addAttribute("user", user);
-        return "user-update";
+    public String updateUserForm(@PathVariable("id") Long id, Model model, Authentication authentication){
+        User user1 = userService.userByid(id);
+        User user2 = userService.userByid(userService.findByUserEmail(authentication.getName()).getId());
+        model.addAttribute("user1", user1);
+        model.addAttribute("user2", user2);
+        model.addAttribute("users", userService.usersAll());
+        return "user-edit";
     }
 
     @PostMapping("/admin/user-update")
     public String updateUser(User user, @RequestParam(value = "role") String[] roles){
+        String password = passwordEncoder.encode(user.getPassword());
+        user.setPassword(password);
         user.setRoles(userService.getRoles(roles));
         userService.userAdd(user);
         return "redirect:/admin";
-    }
-    @GetMapping("/user-registration")
-    public String registrationPage(@ModelAttribute("user") User user) {
-        return "user-registration";
-    }
-    @PostMapping("/user-registration")
-    public String performRegistration (@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
-        user.setRoles(userService.getRoles(roles));
-        userService.userAdd(user);
-        return "redirect:/";
     }
 }

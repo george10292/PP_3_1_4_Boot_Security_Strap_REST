@@ -49,31 +49,26 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
 
     //Добавление юзера
     public User userAdd(User user){
-        user.setRoles(user.getRoles());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     //Удаление юзера
     public void userDelete(long id){userRepository.deleteById(id);}
 
-    //Поиск Юзера по имени
-    public User findByUsername(String username){
-        return userRepository.getByUsername(username);
-    }
 
     //Загрузка юзера
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.getByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = findByUserEmail(email);
         if(user == null){
-            throw new UsernameNotFoundException (String.format("User not found ", username));
+            throw new UsernameNotFoundException (String.format("User not found ", email));
         }
-        return  user;
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
+                mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> getRoles(Collection<Role> roles) {
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 
@@ -84,5 +79,9 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
             roleSet.add(roleRepository.findByName(role));
         }
         return roleSet;
+    }
+
+    public User findByUserEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

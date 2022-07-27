@@ -1,19 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <title>User info</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 </head>
+
 <body>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="navbar-nav">
+            <div class="navbar-header">
+              <b class="navbar-brand" th:text="${user.getEmail()}">...</b>
+              <b class="navbar-brand" >With roles: </b>
+              <b class="navbar-brand" th:text="${user.getRoles()}">...</b>
+            </div>
+          </ul>
+          <ul class="navbar-nav ml-md-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/logout">Logout <span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+        </div>
+      </nav>
 
-User ID: <p th:text="${user.getId()}">VALUE</p>
-User name: <p th:text="${user.getName()}">VALUE</p>
-User surname: <p th:text="${user.getSurname()}">VALUE</p>
-User password: <p th:text="${user.getPassword()}">VALUE</p>
-User role: <p th:text="${user.getRoles()}">VAULE</p>
-<form th:action="@{/logout}">
-  <input type="submit" value="LOGOUT"/>
-</form>
+      <div class="row">
+        <div class="col-md-3">
+          <ul class="nav flex-column nav-pills">
+            <li class="nav-item">
+              <a class="nav-link active" href="/user">User</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-9">
+          <div class="page-header">
+            <h1>
+              <b>User Info Page</b>
+            </h1>
+          </div>
+          <!-- Table Start-->
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>Id</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Age</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+            </thead>
 
+            <tbody>
+            <td th:text="${user.getId()}">...</td>
+            <td th:text="${user.getUsername()}">...</td>
+            <td th:text="${user.getSurname()}">...</td>
+            <td th:text="${user.getAge()}">...</td>
+            <td th:text="${user.getEmail()}">...</td>
+            <td th:text="${user.getRoles()}">...</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
-</html>

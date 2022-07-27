@@ -7,6 +7,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -15,11 +16,11 @@ public interface UserService {
     List<User> usersAll();
     User userAdd(User user);
     void userDelete(long id);
-    User findByUsername(String username);
 
     //Загрузка юзера
     @Transactional(readOnly = true)
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
     Set<Role> getRoles(String[] roles);
+    User findByUserEmail(String email);
 }
