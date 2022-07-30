@@ -38,7 +38,7 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
     }
 
     //поиск юзера по ID
-    public User userByid(long id){
+    public User userById(long id){
         return userRepository.findById(id).orElse(null);
     }
 
@@ -48,11 +48,13 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
     }
 
     //Добавление юзера
+    @Transactional
     public User userAdd(User user){
         return userRepository.save(user);
     }
 
     //Удаление юзера
+    @Transactional
     public void userDelete(long id){userRepository.deleteById(id);}
 
 
@@ -76,12 +78,12 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
     public Set<Role> getRoles(String[] roles){
         Set<Role> roleSet = new HashSet<>();
         for (String role : roles) {
-            roleSet.add(roleRepository.findByName(role));
+            roleSet.add(roleRepository.findRoleModelByName(role));
         }
         return roleSet;
     }
 
     public User findByUserEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findUserByEmail(email);
     }
 }

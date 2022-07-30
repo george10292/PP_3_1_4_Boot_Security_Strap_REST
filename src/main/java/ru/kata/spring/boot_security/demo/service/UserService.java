@@ -12,13 +12,12 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserService {
-    User userByid(long id);
+    User userById(long id);
     List<User> usersAll();
     User userAdd(User user);
     void userDelete(long id);
 
     //Загрузка юзера
-    @Transactional(readOnly = true)
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
     Set<Role> getRoles(String[] roles);
