@@ -40,7 +40,7 @@ public class UsersController {
     public String goToAdminPage(Authentication authentication, Model model) {
         model.addAttribute("user", userService.getUserById(userService.findByUserEmail(authentication.getName()).getId()));
         List<Role> listRoles = userService.listRolesForAUser();
-        model.addAttribute("users", userRepo.findAll());
+        model.addAttribute("users", userService.findAll());
         model.addAttribute("listRoles", listRoles);
         return "admin";
     }

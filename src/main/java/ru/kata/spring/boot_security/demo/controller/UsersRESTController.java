@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.List;
 
@@ -16,46 +17,44 @@ import java.util.List;
 @RequestMapping("/api")
 public class UsersRESTController {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final UserRepository userRepo;
+    private final UserService userService;
 
     @Autowired
-    public UsersRESTController(UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public UsersRESTController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/admin/users/{id}")
     public User returnOne(@PathVariable Long id) {
-        return userRepo.findById(id).orElse(null);
+        return userService.getUserById(id);
     }
 
     @PostMapping("admin/users/save")
     public ResponseEntity<User> saveUser(@RequestBody User user) {
         String password = passwordEncoder.encode(user.getPassword());
         user.setPassword(password);
-        return ResponseEntity.ok(userRepo.save(user));
+        return ResponseEntity.ok(userService.saveUser(user));
     }
 
     @PutMapping("admin/users")
     public ResponseEntity<User> updateUser(@RequestBody User u) {
         String password = passwordEncoder.encode(u.getPassword());
         u.setPassword(password);
-        return ResponseEntity.ok(userRepo.save(u));
+        return ResponseEntity.ok(userService.saveUser(u));
     }
 
     @DeleteMapping("/admin/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userRepo.deleteById(id);
-        boolean deleted = userRepo.existsById(id);
-        if (!deleted) {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-        }
-
+        userService.deleteById(userService.getUserById(id));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/admin/users")
     public ResponseEntity<List<User>> showAllUsers() {
-        return ResponseEntity.ok(userRepo.findAll());
+        final List<User> users = userService.findAll();
+        return users != null && !users.isEmpty()
+                ? new ResponseEntity<>(users, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }
